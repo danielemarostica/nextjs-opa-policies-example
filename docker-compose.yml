@@ -1,0 +1,30 @@
+version: "3.8"
+
+services:
+  opa:
+    image: openpolicyagent/opa:latest
+    ports:
+      - "8181:8181"
+    volumes:
+      - ./opa/policies:/policies
+    command:
+      - "run"
+      - "--server"
+      - "--log-level=debug"
+      - "--addr=0.0.0.0:8181"
+      - "/policies"
+    healthcheck:
+      test: ["CMD", "/opa", "eval", "true"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  nextjs:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - OPA_URL=http://opa:8181
+    depends_on:
+      opa:
+        condition: service_healthy
