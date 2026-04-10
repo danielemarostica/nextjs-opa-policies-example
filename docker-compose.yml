@@ -18,6 +18,11 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
+    develop:
+      watch:
+        - action: sync
+          path: ./opa/policies
+          target: /policies
 
   nextjs:
     build: .
@@ -28,3 +33,16 @@ services:
     depends_on:
       opa:
         condition: service_healthy
+    develop:
+      watch:
+        - action: sync
+          path: ./app
+          target: /app/app
+        - action: sync
+          path: ./lib
+          target: /app/lib
+        - action: sync
+          path: ./middleware.ts
+          target: /app/middleware.ts
+        - action: rebuild
+          path: ./package.json
